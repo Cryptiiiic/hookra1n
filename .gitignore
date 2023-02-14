@@ -3,3 +3,4 @@
 *.tar
 *.dylib
 *.dSYM
+*.bin
