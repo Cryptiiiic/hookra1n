@@ -5,7 +5,6 @@
 #include <stdio.h>
 #include <utils.h>
 #include <hook.h>
-#include <substitute.h>
 
 __attribute__ ((constructor))
 static void checkra1n_hooker_ctor(void) {
@@ -14,6 +13,5 @@ static void checkra1n_hooker_ctor(void) {
 #else
     shellcode_setup();
     int err = setup_hooks();
-    printf("(%d): (%s)\n", err, substitute_strerror(err));
 #endif
 }

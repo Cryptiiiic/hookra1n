@@ -1,0 +1,4 @@
+[submodule "rd_route"]
+	path = external/rd_route
+	url = https://github.com/rodionovd/rd_route.git
+	branch = master

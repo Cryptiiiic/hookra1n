@@ -7,10 +7,43 @@
 #include <string.h>
 #include <assert.h>
 #include <hook.h>
-#include <substitute.h>
+#include <stdlib.h>
 
 #if __aarch64__
+#include <substitute.h>
+int setup_hooks(void) {
+    slide = (uint64_t)_dyld_get_image_vmaddr_slide(0);
+    t8015_stage2_address = (uint64_t)(slide + 0);
+    uint64_t version = (uint64_t)(slide + 0);
+    bool match = strcmp((const char *)version, "Checkra1n 0.1337.1\n");
+    assert(match && "[FATAL_ERROR]: Unsupported checkra1n version!");
+    if(!match) {
+        fprintf(stderr, "[FATAL_ERROR]: Unsupported checkra1n version!\n");
+        exit(-1);
+    }
+    memcpy_address = (uint64_t)(slide + 0);
+    struct substitute_function_hook code_hooks[] = {
+            {
+                    (void *)t8015_stage2_address,
+                    &t8015_stage2_hook_tramp,
+                    t8015_stage2_jumpback_address,
+                    0,
+            },
+    };
+    t8015_stage2_jumpback_address = (void *)(slide + 0);
+    int ret = substitute_hook_functions(code_hooks, sizeof(code_hooks) / sizeof(*code_hooks), NULL, 0);
+
+    return ret;
+}
+
+__attribute__((naked))
+__attribute__ ((noinline))
+static void t8015_stage2_hook_tramp(void) {
+    //
+}
 #else
+#include <rd_route.h>
+#include <mach/mach_error.h>
 
 size_t stage2_shellcode_size;
 FILE *stage2_shellcode_file;
@@ -27,18 +60,14 @@ int setup_hooks(void) {
         exit(-1);
     }
     memcpy_address = (uint64_t)(slide + 0x10001cd82);
-    struct substitute_function_hook code_hooks[] = {
-            {
-                    (void *)t8015_stage2_address,
-                    &t8015_stage2_hook_tramp,
-                    t8015_stage2_jumpback_address,
-                    0,
-            },
-    };
+    kern_return_t kr = rd_route((void *)t8015_stage2_address, &t8015_stage2_hook_tramp, t8015_stage2_jumpback_address);
+    assert(!kr && "[FATAL_ERROR]: rd_route: t8015_stage2 hook failed!" && mach_error_string(kr));
+    if(kr) {
+        fprintf(stderr, "[FATAL_ERROR]: rd_route: t8015_stage2 hook failed! (%s)\n", mach_error_string(kr));
+        exit(-1);
+    }
     t8015_stage2_jumpback_address = (void *)(slide + 0x100012e25);
-    int ret = substitute_hook_functions(code_hooks, sizeof(code_hooks) / sizeof(*code_hooks), NULL, 0);
-
-    return ret;
+    return 0;
 }
 
 __attribute__((naked))
