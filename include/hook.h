@@ -10,14 +10,15 @@
 static uint64_t slide = 0;
 
 static uint64_t t8015_stage2_address = 0;
+static uint64_t t8010_stage2_address = 0;
 static uint64_t memcpy_address = 0;
 
-static void *t8015_stage2_jumpback_address = NULL;
+static void *stage2_jumpback_address = NULL;
 static void *jump_back = NULL;
 
 int setup_hooks(void);
 
-static void t8015_stage2_hook_tramp(void);
+static void stage2_hook_tramp(void);
 
 
 

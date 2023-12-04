@@ -16,6 +16,11 @@ c1337_2_t8015_stage2_size=0xD0C
 c1337_2_t8015_stage2_gnu_offset=158528
 c1337_2_t8015_stage2_gnu_size=3340
 
+c1337_2_t8010_stage2_offset=0x25170
+c1337_2_t8010_stage2_size=0xCE4
+c1337_2_t8010_stage2_gnu_offset=151920
+c1337_2_t8010_stage2_gnu_size=3300
+
 function bin_check() {
   tmp=$(command -v strings)
   if [[ "$tmp" == "" || "$?" != 0 ]]; then echo "[FATAL_ERROR]: Missing strings command!"; exit -1; fi
@@ -80,12 +85,32 @@ function c1337_1_t8015_stage2_dump() {
   echo "[SUCCESS]: Successfully dumped t8015 stage2 shellcode from checkra1n!"
 }
 
+function c1337_2_t8010_stage2_dump() {
+  if [[ $gnu_dd == 1 ]]; then
+    dd if=$1 bs=1 skip=$c1337_2_t8010_stage2_gnu_offset count=$c1337_2_t8010_stage2_gnu_size of=${script_base}/checkra1n_dump/t8010_stage2.bin status=none
+  else
+    dd if=$1 bs=1 skip=$c1337_2_t8010_stage2_offset count=$c1337_2_t8010_stage2_size of=${script_base}/checkra1n_dump/t8010_stage2.bin status=none
+  fi
+  if [[ $gnu_stat == 1 ]]; then
+    tmp=$(stat -c %s ${script_base}/checkra1n_dump/t8010_stage2.bin)
+    if [[ "$tmp" != "$c1337_2_t8010_stage2_gnu_size" ]]; then echo "[FATAL_ERROR]: Failed to dump t8010 stage2 shellcode from checkra1n!"; exit -1; fi
+  else
+    tmp=$(stat -f %z ${script_base}/checkra1n_dump/t8010_stage2.bin)
+    if [[ "$tmp" != "$c1337_2_t8010_stage2_gnu_size" ]]; then echo "[FATAL_ERROR]: Failed to dump t8010 stage2 shellcode from checkra1n!"; exit -1; fi
+  fi
+  echo "[SUCCESS]: Successfully dumped t8010 stage2 shellcode from checkra1n!"
+}
+
 function main() {
   if [[ "$1" == "" ]]; then echo "$script_name <checkra1n path>"; exit -1; fi
   bin_check
   mkdir -p ${script_base}/checkra1n_dump
   c1337_2_version_check $1
-  if [[ "$?" == 0 ]]; then c1337_2_t8015_stage2_dump $1; return 0; fi
+  if [[ "$?" == 0 ]]; then
+    c1337_2_t8015_stage2_dump $1
+    c1337_2_t8010_stage2_dump $1
+    return 0
+  fi
   c1337_1_version_check $1
   c1337_1_t8015_stage2_dump $1
   return 0;
