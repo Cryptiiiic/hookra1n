@@ -51,22 +51,26 @@ uint64_t stage2_shellcode;
 
 int setup_hooks(void) {
     slide = (uint64_t)_dyld_get_image_vmaddr_slide(0);
-    t8015_stage2_address = (uint64_t)(slide + 0x100012daa);
-    uint64_t version = (uint64_t)(slide + 0x100027174);
-    bool match = strcmp((const char *)version, "Checkra1n 0.1337.1\n");
+    // 0.1337.1 t8015_stage2_address = (uint64_t)(slide + 0x100012daa);
+    // 0.1337.1 uint64_t version = (uint64_t)(slide + 0x100027174);
+    t8015_stage2_address = (uint64_t)(slide + 0x100012c7a); // 0.1337.2
+    uint64_t version = (uint64_t)(slide + 0x100027174); // 0.1337.2
+    bool match = strcmp((const char *)version, "Checkra1n 0.1337.2\n");
     assert(match && "[FATAL_ERROR]: Unsupported checkra1n version!");
     if(!match) {
         fprintf(stderr, "[FATAL_ERROR]: Unsupported checkra1n version!\n");
         exit(-1);
     }
-    memcpy_address = (uint64_t)(slide + 0x10001cd82);
+    // 0.1337.1  memcpy_address = (uint64_t)(slide + 0x10001cd82);
+    memcpy_address = (uint64_t)(slide + 0x10001cc62); // 0.1337.2
     kern_return_t kr = rd_route((void *)t8015_stage2_address, &t8015_stage2_hook_tramp, t8015_stage2_jumpback_address);
     assert(!kr && "[FATAL_ERROR]: rd_route: t8015_stage2 hook failed!" && mach_error_string(kr));
     if(kr) {
         fprintf(stderr, "[FATAL_ERROR]: rd_route: t8015_stage2 hook failed! (%s)\n", mach_error_string(kr));
         exit(-1);
     }
-    t8015_stage2_jumpback_address = (void *)(slide + 0x100012e25);
+    // 0.1337.1 t8015_stage2_jumpback_address = (void *)(slide + 0x100012e25);
+    t8015_stage2_jumpback_address = (void *)(slide + 0x100012cf5); // 0.1337.2
     return 0;
 }
 

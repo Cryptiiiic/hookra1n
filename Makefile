@@ -3,7 +3,7 @@ build_debug: | clean debug
 .PHONY: build_release
 
 release:
-	xcrun clang -DNDEBUG -Os -std=gnu11 -flto=thin -Wno-sizeof-pointer-div -isysroot $(shell xcrun --sdk macosx --show-sdk-path) $(wildcard src/*.c) -Iinclude -shared -o hookra1n.dylib -arch x86_64 -Iexternal/rd_route external/rd_route/rd_route.c -masm=intel
+	xcrun clang -DNDEBUG -Os -std=gnu11 -flto=thin -Wno-sizeof-pointer-div -isysroot $(shell xcrun --sdk macosx --show-sdk-path) $(wildcard src/*.c) -Iinclude -shared -o hookra1n.dylib -arch x86_64 -Iexternal/rd_route external/rd_route/rd_route.c -masm=att
 	mv hookra1n{,_x86_64}.dylib
 	xcrun clang -DNDEBUG -Os -std=gnu11 -flto=thin -Wno-sizeof-pointer-div -isysroot $(shell xcrun --sdk macosx --show-sdk-path) $(wildcard src/*.c) -Iinclude -shared -o hookra1n.dylib -arch arm64 -L/usr/local/lib -lsubstitute
 	mv hookra1n{,_arm64}.dylib
