@@ -50,6 +50,16 @@ FILE *stage2_shellcode_file;
 uint64_t stage2_shellcode;
 
 int setup_hooks(void) {
+    int image_index = -1;
+    for(int i = 0; i < _dyld_image_count(); i++) {
+        if(strstr(_dyld_get_image_name(i), "checkra1n")) {
+            image_index = i;
+            break;
+        }
+    }
+    if(image_index == -1) {
+        return 0;
+    }
     slide = (uint64_t)_dyld_get_image_vmaddr_slide(0);
     // 0.1337.1 t8015_stage2_address = (uint64_t)(slide + 0x100012daa);
     // 0.1337.1 uint64_t version = (uint64_t)(slide + 0x100027174);
